@@ -26,6 +26,13 @@ class ReviewCreate(generics.CreateAPIView):
     def perform_create(self, serializer):
         pk = self.kwargs['pk']
         watchlist = WatchList.objects.get(pk=pk)
+        
+        review_suser = self.request.user
+        review_queryset = Review.objects.filter(watchlist=watchlist, review_user=review_user)
+        
+        if review_queryset.exists():
+            raise serializers.ValidationError("You have already reviewed this watchlist item.")
+        
         serializer.save(watchlist=watchlist)
 
 
@@ -95,18 +102,34 @@ class WatchDetailAV(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 
+class StreamPlatformVS(viewsets.ModelViewSet):
+    queryset = StreamPlatform.objects.all()
+    serializer_class = StreamPlatformSerializer
 
-class StreamPlatformVS(viewsets.ViewSet):
-    def list(self, request):
-        queryset = StreamPlatform.objects.all()
-        serializer = StreamPlatformSerializer(queryset, many=True)
-        return Response(serializer.data)
+# class StreamPlatformVS(viewsets.ViewSet):
+#     def list(self, request):
+#         queryset = StreamPlatform.objects.all()
+#         serializer = StreamPlatformSerializer(queryset, many=True)
+#         return Response(serializer.data)
     
-    def retrieve(self, request, pk=None):
-        queryset = StreamPlatform.objects.all()
-        user = get_object_or_404(queryset, pk=pk)
-        serializer = StreamPlatformSerializer(user)
-        return Response(serializer.data)
+#     def retrieve(self, request, pk=None):
+#         queryset = StreamPlatform.objects.all()
+#         user = get_object_or_404(queryset, pk=pk)
+#         serializer = StreamPlatformSerializer(user)
+#         return Response(serializer.data)
+    
+#     def create(self, request):
+#         serializer = StreamPlatformSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         else:
+#             return Response(serializer.errors)
+        
+#     def destroy(self, request, pk=None):
+#         platform = StreamPlatform.objects.get(pk=pk)
+#         platform.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
     
 # class StreamPlatformAV(APIView):
 #     def get(self, request):
