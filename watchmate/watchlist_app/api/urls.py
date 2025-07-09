@@ -9,7 +9,7 @@ router = DefaultRouter()
 router.register('stream', StreamPlatformVS, basename='stream-platform')
 
 
-urlpatterns = [
+urlpatterns = [ 
     
     path('', include(router.urls)),
     # path('stream/', StreamPlatformAV.as_view(), name='stream-list'),

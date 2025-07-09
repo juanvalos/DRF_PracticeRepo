@@ -5,6 +5,7 @@ from rest_framework import generics
 from rest_framework import mixins
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import ValidationError
 
 from watchlist_app.models import WatchList, StreamPlatform, Review
 from watchlist_app.api.serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
@@ -23,17 +24,20 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
 class ReviewCreate(generics.CreateAPIView):
     serializer_class = ReviewSerializer
 
+    def get_queryset(self):
+        return Review.objects.all()
+    
     def perform_create(self, serializer):
         pk = self.kwargs['pk']
         watchlist = WatchList.objects.get(pk=pk)
         
-        review_suser = self.request.user
+        review_user = self.request.user
         review_queryset = Review.objects.filter(watchlist=watchlist, review_user=review_user)
         
         if review_queryset.exists():
-            raise serializers.ValidationError("You have already reviewed this watchlist item.")
+            raise ValidationError("You have already reviewed this watchlist item.")
         
-        serializer.save(watchlist=watchlist)
+        serializer.save(watchlist=watchlist, review_user=review_user)
 
 
 
