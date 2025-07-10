@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404
 
 from watchlist_app.models import WatchList, StreamPlatform, Review
 from watchlist_app.api.serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
+from watchlist_app.api.permissions import AdminOrReadOnly, ReviewUserOrReadOnly
 
 class ReviewList(generics.ListAPIView):
     serializer_class = ReviewSerializer
@@ -21,7 +22,7 @@ class ReviewList(generics.ListAPIView):
         return Review.objects.filter(watchlist__id=pk)
     
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [ReviewUserOrReadOnly]
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer  
 
