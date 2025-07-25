@@ -12,7 +12,7 @@ from django.shortcuts import get_object_or_404
 
 from watchlist_app.models import WatchList, StreamPlatform, Review
 from watchlist_app.api.serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
-from watchlist_app.api.permissions import AdminOrReadOnly, ReviewUserOrReadOnly
+from watchlist_app.api.permissions import IsAdminOrReadOnly, ReviewUserOrReadOnly
 
 class ReviewList(generics.ListAPIView):
     serializer_class = ReviewSerializer
@@ -91,6 +91,8 @@ class WatchListAV(APIView):
             return Response(serializer.errors)
         
 class WatchDetailAV(APIView):
+    
+    permission_classes = [IsAdminOrReadOnly]
     def get(self, request, pk):
         try:
             movie = WatchList.objects.get(pk=pk)
