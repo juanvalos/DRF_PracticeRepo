@@ -12,22 +12,23 @@ from django.shortcuts import get_object_or_404
 
 from watchlist_app.models import WatchList, StreamPlatform, Review
 from watchlist_app.api.serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
-from watchlist_app.api.permissions import IsAdminOrReadOnly, ReviewUserOrReadOnly
+from watchlist_app.api.permissions import IsAdminOrReadOnly, IsReviewUserOrReadOnly
 
 class ReviewList(generics.ListAPIView):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         pk = self.kwargs['pk']
         return Review.objects.filter(watchlist__id=pk)
     
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [ReviewUserOrReadOnly]
+    permission_classes = [IsReviewUserOrReadOnly]
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer  
 
 class ReviewCreate(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = ReviewSerializer
 
     def get_queryset(self):
@@ -77,6 +78,7 @@ class ReviewCreate(generics.CreateAPIView):
 
  
 class WatchListAV(APIView):
+    permission_classes = [IsAdminOrReadOnly]
     def get(self, request):
         movies = WatchList.objects.all()
         serializer = WatchListSerializer(movies, many=True)
@@ -91,7 +93,6 @@ class WatchListAV(APIView):
             return Response(serializer.errors)
         
 class WatchDetailAV(APIView):
-    
     permission_classes = [IsAdminOrReadOnly]
     def get(self, request, pk):
         try:
@@ -123,6 +124,7 @@ class WatchDetailAV(APIView):
     
 
 class StreamPlatformVS(viewsets.ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
     queryset = StreamPlatform.objects.all()
     serializer_class = StreamPlatformSerializer
 
@@ -167,6 +169,7 @@ class StreamPlatformVS(viewsets.ModelViewSet):
 #             return Response(serializer.errors)
 
 class StreamPlatformDetailAV(APIView):
+    permission_classes = [IsAdminOrReadOnly]
     def get(self, request, pk):
         try:
             platform = StreamPlatform.objects.get(pk=pk)
